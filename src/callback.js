@@ -8,11 +8,9 @@ const CALLBACK_OBJECTS = process.env.CALLBACK_OBJECTS ? JSON.parse(process.env.C
 export const isCallbackSet = !!CALLBACK_URL
 
 /**
- * @param {Uint8Array} update
- * @param {any} origin
  * @param {import('./utils.js').WSSharedDoc} doc
  */
-export const callbackHandler = (update, origin, doc) => {
+export const callbackHandler = (doc) => {
   const room = doc.name
   const dataToSend = {
     room,

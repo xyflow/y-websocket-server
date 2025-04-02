@@ -6,12 +6,14 @@ import * as encoding from 'lib0/encoding'
 import * as decoding from 'lib0/decoding'
 import * as map from 'lib0/map'
 
-import debounce from 'lodash.debounce'
+import * as eventloop from 'lib0/eventloop'
 
 import { callbackHandler, isCallbackSet } from './callback.js'
 
 const CALLBACK_DEBOUNCE_WAIT = parseInt(process.env.CALLBACK_DEBOUNCE_WAIT || '2000')
 const CALLBACK_DEBOUNCE_MAXWAIT = parseInt(process.env.CALLBACK_DEBOUNCE_MAXWAIT || '10000')
+
+const debouncer = eventloop.createDebouncer(CALLBACK_DEBOUNCE_WAIT, CALLBACK_DEBOUNCE_MAXWAIT)
 
 const wsReadyStateConnecting = 0
 const wsReadyStateOpen = 1
@@ -139,11 +141,9 @@ export class WSSharedDoc extends Y.Doc {
     this.awareness.on('update', awarenessChangeHandler)
     this.on('update', /** @type {any} */ (updateHandler))
     if (isCallbackSet) {
-      this.on('update', /** @type {any} */ (debounce(
-        callbackHandler,
-        CALLBACK_DEBOUNCE_WAIT,
-        { maxWait: CALLBACK_DEBOUNCE_MAXWAIT }
-      )))
+      this.on('update', (_update, _origin, doc) => {
+        debouncer(() => callbackHandler(/** @type {WSSharedDoc} */ (doc)))
+      })
     }
     this.whenInitialized = contentInitializor(this)
   }
