@@ -7,6 +7,7 @@ import * as decoding from 'lib0/decoding'
 import * as map from 'lib0/map'
 
 import * as eventloop from 'lib0/eventloop'
+import { LeveldbPersistence } from 'y-leveldb'
 
 import { callbackHandler, isCallbackSet } from './callback.js'
 
@@ -30,7 +31,6 @@ let persistence = null
 if (typeof persistenceDir === 'string') {
   console.info('Persisting documents to "' + persistenceDir + '"')
   // @ts-ignore
-  const LeveldbPersistence = (await import('y-leveldb')).LeveldbPersistence
   const ldb = new LeveldbPersistence(persistenceDir)
   persistence = {
     provider: ldb,
