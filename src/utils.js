@@ -30,7 +30,7 @@ let persistence = null
 if (typeof persistenceDir === 'string') {
   console.info('Persisting documents to "' + persistenceDir + '"')
   // @ts-ignore
-  const LeveldbPersistence = require('y-leveldb').LeveldbPersistence
+  const LeveldbPersistence = (await import('y-leveldb')).LeveldbPersistence
   const ldb = new LeveldbPersistence(persistenceDir)
   persistence = {
     provider: ldb,
