@@ -1,13 +1,12 @@
 import * as Y from 'yjs'
-import * as syncProtocol from 'y-protocols/sync'
-import * as awarenessProtocol from 'y-protocols/awareness'
+import * as syncProtocol from '@y/protocols/sync'
+import * as awarenessProtocol from '@y/protocols/awareness'
 
 import * as encoding from 'lib0/encoding'
 import * as decoding from 'lib0/decoding'
 import * as map from 'lib0/map'
 
 import * as eventloop from 'lib0/eventloop'
-import { LeveldbPersistence } from 'y-leveldb'
 
 import { callbackHandler, isCallbackSet } from './callback.js'
 
@@ -23,29 +22,11 @@ const wsReadyStateClosed = 3 // eslint-disable-line
 
 // disable gc when using snapshots!
 const gcEnabled = process.env.GC !== 'false' && process.env.GC !== '0'
-const persistenceDir = process.env.YPERSISTENCE
+// const persistenceDir = process.env.YPERSISTENCE
 /**
  * @type {{bindState: function(string,WSSharedDoc):void, writeState:function(string,WSSharedDoc):Promise<any>, provider: any}|null}
  */
 let persistence = null
-if (typeof persistenceDir === 'string') {
-  console.info('Persisting documents to "' + persistenceDir + '"')
-  // @ts-ignore
-  const ldb = new LeveldbPersistence(persistenceDir)
-  persistence = {
-    provider: ldb,
-    bindState: async (docName, ydoc) => {
-      const persistedYdoc = await ldb.getYDoc(docName)
-      const newUpdates = Y.encodeStateAsUpdate(ydoc)
-      ldb.storeUpdate(docName, newUpdates)
-      Y.applyUpdate(ydoc, Y.encodeStateAsUpdate(persistedYdoc))
-      ydoc.on('update', update => {
-        ldb.storeUpdate(docName, update)
-      })
-    },
-    writeState: async (_docName, _ydoc) => {}
-  }
-}
 
 /**
  * @param {{bindState: function(string,WSSharedDoc):void,
