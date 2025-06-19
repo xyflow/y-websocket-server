@@ -26,18 +26,6 @@ kill_timeout = '5s'
   soft_limit = 200
   hard_limit = 250
 
-# Health checks for websocket server
-[[http_service.checks]]
-  type = "http"
-  interval = "15s"
-  timeout = "2s"
-  grace_period = "5s"
-  method = "GET"
-  path = "/"
-  protocol = "http"
-  tls_skip_verify = false
-  headers = {}
-
 [[vm]]
   size = 'shared-cpu-1x'
   memory = '512mb'
